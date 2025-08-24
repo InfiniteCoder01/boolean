@@ -6,6 +6,7 @@ typedef struct {
     Vector2 position, size;
     Vector2 velocity;
     bool grounded;
+    int air_jumps;
 } Player;
 
 Player CreatePlayer(Vector2 position);

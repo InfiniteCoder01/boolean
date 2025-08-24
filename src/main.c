@@ -20,6 +20,7 @@ void tick() {
 void draw() {
     WorldDraw(&world);
     PlayerDraw(&player);
+    WorldDrawPost(&world);
 }
 
 int main(void) {
@@ -28,9 +29,13 @@ int main(void) {
     // SetWindowState(FLAG_WINDOW_RESIZABLE);
 
     world = LoadWorld("assets/world.png");
-    player = CreatePlayer((Vector2) { 100.0, 130.0 });
+    player = CreatePlayer((Vector2) { 300.0, 300.0 });
     camera = (Camera2D) { 0 };
     camera.target = Vector2Scale(level_size, 0.5);
+
+    BeginWorldModification(&world);
+    DrawPoly((Vector2) { 200, 200 }, 5, 60, 0, (Color) { 0, 255, 0, 255 });
+    EndWorldModification(&world);
     
     double next_tick = GetTime();
     while (!WindowShouldClose()) {

@@ -12,7 +12,7 @@
           devShell = pkgs.mkShell {
             buildInputs = with pkgs; [
               raylib
-              # emscripten
+              emscripten
             ];
           };
           formatter = pkgs.nixpkgs-fmt;

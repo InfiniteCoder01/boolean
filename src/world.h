@@ -4,11 +4,16 @@
 typedef struct {
     RenderTexture2D texture;
     Image image;
+    Shader postprocess_shader;
 } World;
 
 World LoadWorld(const char *filepath);
 void UnloadWorld(World world);
 void WorldDraw(World *world);
+void WorldDrawPost(World *world);
+
+void BeginWorldModification(World *world);
+void EndWorldModification(World *world);
 
 bool ColorSolid(Color color);
 Color WorldSample(World *world, Vector2 position);

@@ -1,16 +1,32 @@
 #include "world.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stddef.h>
+
+static Shader load_shader(char *filename) {
+    char *code = LoadFileText(filename);
+#if defined(PLATFORM_WEB)
+    // Erase #version line for web builds
+    Shader shader = LoadShaderFromMemory(NULL, code + 13);
+#else
+    Shader shader = LoadShaderFromMemory(NULL, code);
+#endif
+    UnloadFileText(code);
+    return shader;
+}
 
 World LoadWorld(const char *filepath) {
     Texture2D raw = LoadTexture(filepath);
     RenderTexture2D texture = LoadRenderTexture(raw.width, raw.height);
-    UnloadTexture(texture.texture);
-    texture.texture = raw;
+    BeginTextureMode(texture);
+    DrawTexture(raw, 0, 0, WHITE);
+    EndTextureMode();
+    UnloadTexture(raw);
 
     return (World) {
         .texture = texture,
         .image = LoadImageFromTexture(texture.texture),
+        .postprocess_shader = load_shader("assets/world_postprocess.glsl"),
     };
 }
 
@@ -23,8 +39,40 @@ void WorldDraw(World *world) {
     DrawTexture(world->texture.texture, 0, 0, WHITE);
 }
 
+void WorldDrawPost(World *world) {
+    Vector2 size = { world->texture.texture.width, world->texture.texture.height };
+    SetShaderValue(
+        world->postprocess_shader,
+        GetShaderLocation(world->postprocess_shader, "worldSize"),
+        &size,
+        SHADER_UNIFORM_VEC2
+    );
+    BeginShaderMode(world->postprocess_shader);
+    DrawTexture(world->texture.texture, 0, 0, WHITE);
+    EndShaderMode();
+}
+
+// World modification
+#include <stdio.h>
+void BeginWorldModification(World *world) {
+    puts("WORLDMOD!!!");
+    BeginTextureMode(world->texture);
+}
+
+void EndWorldModification(World *world) {
+    EndTextureMode();
+
+    UnloadImage(world->image);
+    world->image = LoadImageFromTexture(world->texture.texture);
+    puts("END WORLDMOD!!!");
+}
+
+// World sampling
 bool ColorSolid(Color color) {
-    return (int)color.r + color.g + color.b > 500;
+    unsigned char max = color.r;
+    if (color.g > max) max = color.g;
+    if (color.b > max) max = color.b;
+    return max > 220;
 }
 
 Color WorldSample(World *world, Vector2 position) {
