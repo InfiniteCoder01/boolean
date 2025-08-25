@@ -6,11 +6,12 @@
 static Shader load_shader(char *filename) {
     char *code = LoadFileText(filename);
 #if defined(PLATFORM_WEB)
-    // Erase #version line for web builds
-    Shader shader = LoadShaderFromMemory(NULL, code + 13);
-#else
-    Shader shader = LoadShaderFromMemory(NULL, code);
+    // Override `#version` line for web builds
+    code[9] = '1';
+    code[10] = '0';
+    code[11] = '0';
 #endif
+    Shader shader = LoadShaderFromMemory(NULL, code);
     UnloadFileText(code);
     return shader;
 }

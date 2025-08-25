@@ -10,7 +10,7 @@ boolean: src/*.c
 	gcc src/*.c -lraylib -lm -o boolean
 
 RAYLIB_WASM_PATH = "/home/infinitecoder/Downloads/raylib-5.5_webassembly"
-html/index.html: src/*.c
+html/index.html: src/*.c assets/**
 	rm -rf html
 	mkdir html
 

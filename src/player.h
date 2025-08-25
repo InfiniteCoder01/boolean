@@ -5,7 +5,8 @@
 typedef struct {
     Vector2 position, size;
     Vector2 velocity;
-    bool grounded;
+    float squash;
+    int grounded_time;
     int air_jumps;
 } Player;
 

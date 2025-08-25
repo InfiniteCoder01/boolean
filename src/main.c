@@ -35,6 +35,7 @@ int main(void) {
 
     BeginWorldModification(&world);
     DrawPoly((Vector2) { 200, 200 }, 5, 60, 0, (Color) { 0, 255, 0, 255 });
+    DrawPoly((Vector2) { 600, 200 }, 4, 60, 45, (Color) { 255, 0, 0, 255 });
     EndWorldModification(&world);
     
     double next_tick = GetTime();
