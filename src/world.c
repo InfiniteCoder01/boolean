@@ -19,6 +19,7 @@ static Shader load_shader(char *filename) {
 World LoadWorld(const char *filepath) {
     Texture2D original = LoadTexture(filepath);
     RenderTexture2D texture = LoadRenderTexture(original.width, original.height);
+    SetTextureWrap(texture.texture, TEXTURE_WRAP_CLAMP);
 
     return (World) {
         .original = original,
