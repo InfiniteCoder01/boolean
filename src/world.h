@@ -2,6 +2,7 @@
 #include <raylib.h>
 
 typedef struct {
+    Texture2D original;
     RenderTexture2D texture;
     Image image;
     Shader postprocess_shader;
@@ -9,6 +10,7 @@ typedef struct {
 
 World LoadWorld(const char *filepath);
 void UnloadWorld(World world);
+void WorldReset(World *world);
 void WorldDraw(World *world);
 void WorldDrawPost(World *world);
 

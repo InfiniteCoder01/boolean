@@ -17,16 +17,12 @@ static Shader load_shader(char *filename) {
 }
 
 World LoadWorld(const char *filepath) {
-    Texture2D raw = LoadTexture(filepath);
-    RenderTexture2D texture = LoadRenderTexture(raw.width, raw.height);
-    BeginTextureMode(texture);
-    DrawTexture(raw, 0, 0, WHITE);
-    EndTextureMode();
-    UnloadTexture(raw);
+    Texture2D original = LoadTexture(filepath);
+    RenderTexture2D texture = LoadRenderTexture(original.width, original.height);
 
     return (World) {
+        .original = original,
         .texture = texture,
-        .image = LoadImageFromTexture(texture.texture),
         .postprocess_shader = load_shader("assets/world_postprocess.glsl"),
     };
 }
@@ -36,8 +32,14 @@ void UnloadWorld(World world) {
     UnloadRenderTexture(world.texture);
 }
 
+void WorldReset(World *world) {
+    BeginWorldModification(world);
+    DrawTexture(world->original, 0, 0, WHITE);
+    EndWorldModification(world);
+}
+
 void WorldDraw(World *world) {
-    DrawTexture(world->texture.texture, 0, 0, WHITE);
+    DrawTextureRec(world->texture.texture, (Rectangle) { 0, 0, world->texture.texture.width, -world->texture.texture.height }, Vector2Zero(), WHITE);
 }
 
 void WorldDrawPost(World *world) {
@@ -49,14 +51,12 @@ void WorldDrawPost(World *world) {
         SHADER_UNIFORM_VEC2
     );
     BeginShaderMode(world->postprocess_shader);
-    DrawTexture(world->texture.texture, 0, 0, WHITE);
+    DrawTextureRec(world->texture.texture, (Rectangle) { 0, 0, world->texture.texture.width, -world->texture.texture.height }, Vector2Zero(), WHITE);
     EndShaderMode();
 }
 
 // World modification
-#include <stdio.h>
 void BeginWorldModification(World *world) {
-    puts("WORLDMOD!!!");
     BeginTextureMode(world->texture);
 }
 
@@ -65,7 +65,6 @@ void EndWorldModification(World *world) {
 
     UnloadImage(world->image);
     world->image = LoadImageFromTexture(world->texture.texture);
-    puts("END WORLDMOD!!!");
 }
 
 // World sampling
@@ -81,7 +80,7 @@ Color WorldSample(World *world, Vector2 position) {
     if (x < 0 || y < 0 || x >= world->image.width || y >= world->image.height) {
         return WHITE;
     }
-    return GetImageColor(world->image, position.x, position.y);
+    return GetImageColor(world->image, position.x, world->texture.texture.height - position.y - 1);
 }
 
 double WorldRaycast(World *world, Vector2 pos, Vector2 step, double max_distance) {

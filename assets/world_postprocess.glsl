@@ -32,5 +32,9 @@ void main() {
     sum /= float((R * 2 + 1) * (R * 2 + 1));
     darkest.rgb /= hsvValue(darkest.rgb);
 
-    gl_FragColor = vec4(vec3(0, 0, 0), (1.0 - abs(sum - 0.925) * 14.0) * 1.5);
+    vec4 sample = texture(texture0, fragTexCoord);
+    if (hsvValue(sample.rgb) < 0.925) {
+        sample.a = 0;
+    }
+    gl_FragColor = mix(sample, vec4(0, 0, 0, 1), (1.0 - abs(sum - 0.925) * 14.0) * 1.5);
 }
