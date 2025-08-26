@@ -1,14 +1,10 @@
 #include <raylib.h>
 #include <raymath.h>
-#include <stdint.h>
 #include <math.h>
 
-#include "polygon.h"
+#include "ui.h"
 #include "world.h"
 #include "player.h"
-
-const uint32_t TICK_RATE = 120;
-const double TICK_TIME = 1.0 / TICK_RATE;
 
 World world;
 Player player;
@@ -23,7 +19,7 @@ void draw() {
     PlayerDraw(&player);
     WorldDrawPost(&world);
 
-    draw_inventory(&world, camera);
+    draw_ui(&world, camera);
 }
 
 void reset() {
@@ -31,17 +27,19 @@ void reset() {
     player = CreatePlayer((Vector2) { 300.0, 300.0 });
     clear_inventory();
     give_shape(6, 60, (Color) { 255, 0, 0, 255 });
+    give_shape(4, 40, (Color) { 0, 255, 0, 255 });
 }
 
-#include <stdio.h>
 int main(void) {
     const Vector2 viewport_size = { 960, 540 };
     InitWindow(viewport_size.x, viewport_size.y, "Boolean");
     SetConfigFlags(FLAG_MSAA_4X_HINT);      // Enable Multi Sampling Anti Aliasing 4x (if available)
     // SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetTargetFPS(60);
 
     world = LoadWorld("assets/world.png");
     camera = (Camera2D) { 0 };
+    camera.target = Vector2Scale(viewport_size, 0.5);
     reset();
 
     double next_tick = GetTime();
@@ -49,7 +47,7 @@ int main(void) {
         double time = GetTime();
         while (next_tick <= time) {
             tick();
-            next_tick += TICK_TIME;
+            next_tick += 1.0 / 60.0;
         }
 
         if (IsKeyPressed(KEY_R)) {
@@ -69,8 +67,7 @@ int main(void) {
             Vector2Scale(Vector2Subtract(
                 camera_target,
                 camera.target
-            ), 0.1));
-        printf("%f\n", camera.target.y);
+            ), 0.3));
 
         BeginDrawing();
         BeginMode2D(camera);

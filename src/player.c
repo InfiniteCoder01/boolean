@@ -65,16 +65,16 @@ void PlayerUpdate(Player *player, World *world) {
         else last_jump = jump;
     }
 
-    const float target_velocity = (right - left) * (player->grounded_time ? 2.0 : 2.5);
-    player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.1 : 0.06);
+    const float target_velocity = (right - left) * (player->grounded_time ? 4.0 : 5.0);
+    player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
 
     if (jump && (player->grounded_time || player->air_jumps > 0)) {
-        player->velocity.y = -10;
+        player->velocity.y = -20;
         if (!player->grounded_time) player->air_jumps--;
-        player->squash = -10.0;
+        player->squash = -20.0;
     } else if (released && player->velocity.y < 0) player->velocity.y *= 0.5;
 
-    player->velocity.y += 0.3;
+    player->velocity.y += 1.0;
     {
         // Wall slide
         const bool bottom = WorldRaycast(
@@ -95,8 +95,8 @@ void PlayerUpdate(Player *player, World *world) {
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
                 (Vector2) { 1.0, 0.0 }, 4.0
             ) < 3.0;
-        if ((center || bottom) && player->velocity.y > 1.0) {
-            player->velocity.y = 1.0;
+        if ((center || bottom) && player->velocity.y > 2.0) {
+            player->velocity.y = 2.0;
             if (center) player->squash = -5.0;
         }
     }
@@ -109,15 +109,15 @@ void PlayerUpdate(Player *player, World *world) {
                 player->velocity.x *= 0.2;
                 player->squash = 10.0;
             }
-            player->grounded_time = 12;
+            player->grounded_time = 6;
             player->air_jumps = 1;
         }
         player->velocity.y = 0;
     }
 
-    player->size.x += (PLAYER_SIZE.x + player->squash - player->size.x) * 0.3;
+    player->size.x += (PLAYER_SIZE.x + player->squash - player->size.x) * 0.5;
     player->size.y = PLAYER_SIZE.x * PLAYER_SIZE.y / player->size.x;
-    player->squash *= 0.93;
+    player->squash *= 0.9;
 }
 
 
