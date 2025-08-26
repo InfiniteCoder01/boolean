@@ -16,7 +16,7 @@ html/index.html: src/*.c assets/**
 
 	emcc src/*.c -o html/index.html \
 		-L$(RAYLIB_WASM_PATH)/lib -I$(RAYLIB_WASM_PATH)/include -lraylib \
-		-s USE_GLFW=3 -s ASYNCIFY -s ASSERTIONS \
+		-s USE_GLFW=3 -s ASYNCIFY -s ASSERTIONS -s INITIAL_MEMORY=33554432 \
 	    --shell-file shell.html --embed-file assets \
 	    -DPLATFORM_WEB
 

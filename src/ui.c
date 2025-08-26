@@ -12,7 +12,7 @@ struct {
 int selection = -1;
 
 void clear_inventory() {
-    for (size_t i = 0; i < INVENTORY_SIZE; i++) inventory[i].sides = 0;
+    for (size_t i = 0; i < INVENTORY_SIZE; i++) inventory[i].present = 0;
 }
 
 void give_shape(int sides, int radius, Color color) {
@@ -86,6 +86,7 @@ void draw_ui(World *world, Camera2D camera) {
     Vector2 mouse = GetScreenToWorld2D(GetMousePosition(), camera);
     if (selection >= 0) {
         inventory[selection].rotation += GetMouseWheelMove() * -5;
+        BeginMode2D(camera);
         DrawPoly(
             mouse,
             inventory[selection].sides,
@@ -93,6 +94,7 @@ void draw_ui(World *world, Camera2D camera) {
             inventory[selection].rotation,
             inventory[selection].color
         );
+        EndMode2D();
     }
 
     draw_inventory(mouse);

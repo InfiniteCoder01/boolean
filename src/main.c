@@ -18,8 +18,6 @@ void draw() {
     WorldDraw(&world);
     PlayerDraw(&player);
     WorldDrawPost(&world);
-
-    draw_ui(&world, camera);
 }
 
 void reset() {
@@ -73,6 +71,7 @@ int main(void) {
         BeginMode2D(camera);
         draw();
         EndMode2D();
+        draw_ui(&world, camera);
         // DrawFPS(0, 0);
         EndDrawing();
     }

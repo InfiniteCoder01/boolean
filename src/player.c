@@ -1,19 +1,23 @@
 #include "player.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stddef.h>
 #include "world.h"
 
 const Vector2 PLAYER_SIZE = { 40.0, 60.0 };
 
 Player CreatePlayer(Vector2 position) {
-    return (Player) {
+    Player player = {
         .position = position,
         .size = PLAYER_SIZE,
         .velocity = Vector2Zero(),
         .squash = 0.0,
         .grounded_time = 0,
         .air_jumps = 0,
+        .trail_ptr = 0,
     };
+    for (size_t i = 0; i < TRAIL; i++) player.trail[i] = position;
+    return player;
 }
 
 static bool collides(Player *player, World *world) {
@@ -120,11 +124,22 @@ void PlayerUpdate(Player *player, World *world) {
     player->squash *= 0.9;
 }
 
-
 void PlayerDraw(Player *player) {
+    { // Draw traill
+        for (size_t i = 0; i < TRAIL; i++) {
+            const Vector2 p = player->trail[(player->trail_ptr + i) % TRAIL];
+            DrawRectangleV(
+               Vector2Add(p, Vector2Multiply(PLAYER_SIZE, (Vector2) { -0.5, -1.0 })),
+               PLAYER_SIZE,
+               (Color) { 255, 255, 255, i * 0.15 }
+            );
+        }
+    }
     DrawRectangleV(
        Vector2Add(player->position, Vector2Multiply(player->size, (Vector2) { -0.5, -1.0 })),
        player->size,
        RAYWHITE
-   );
+    );
+    player->trail[player->trail_ptr] = player->position;
+    player->trail_ptr = (player->trail_ptr + 1) % TRAIL;
 }
