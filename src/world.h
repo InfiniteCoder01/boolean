@@ -2,21 +2,30 @@
 #include <raylib.h>
 
 typedef struct {
-    Texture2D original;
+    Texture2D texture;
+} Level;
+
+#define LEVEL_COUNT 1
+extern Level levels[LEVEL_COUNT];
+
+typedef struct {
+    Level *level;
     RenderTexture2D texture;
     Image image;
-    Shader postprocess_shader;
 } World;
 
-World LoadWorld(const char *filepath);
-void UnloadWorld(World world);
-void WorldReset(World *world);
-void WorldDraw(World *world);
-void WorldDrawPost(World *world);
+extern World world;
 
-void BeginWorldModification(World *world);
-void EndWorldModification(World *world);
+void LoadLevels();
+void UnloadLevels();
+
+void LoadLevel(Level *level);
+void WorldDraw();
+void WorldDrawPost();
+
+void BeginWorldModification();
+void EndWorldModification();
 
 bool ColorSolid(Color color);
-Color WorldSample(World *world, Vector2 position);
-double WorldRaycast(World *world, Vector2 pos, Vector2 step, double max_distance);
+Color WorldSample(Vector2 position);
+double WorldRaycast(Vector2 pos, Vector2 step, double max_distance);

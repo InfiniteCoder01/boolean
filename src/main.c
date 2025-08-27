@@ -6,7 +6,6 @@
 #include "world.h"
 #include "player.h"
 
-World world;
 Player player;
 Camera2D camera;
 
@@ -15,13 +14,13 @@ void tick() {
 }
 
 void draw() {
-    WorldDraw(&world);
+    WorldDraw();
     PlayerDraw(&player);
-    WorldDrawPost(&world);
+    WorldDrawPost();
 }
 
-void reset() {
-    WorldReset(&world);
+void load(size_t level) {
+    LoadLevel(&levels[level]);
     player = CreatePlayer((Vector2) { 300.0, 300.0 });
     clear_inventory();
     give_shape(6, 60, (Color) { 255, 0, 0, 255 });
@@ -35,11 +34,12 @@ int main(void) {
     // SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
-    world = LoadWorld("assets/world.png");
+    LoadLevels();
     camera = (Camera2D) { 0 };
     camera.target = Vector2Scale(viewport_size, 0.5);
-    reset();
 
+    size_t level = 0;
+    load(level);
     double next_tick = GetTime();
     while (!WindowShouldClose()) {
         double time = GetTime();
@@ -49,7 +49,7 @@ int main(void) {
         }
 
         if (IsKeyPressed(KEY_R)) {
-            reset();
+            load(level);
         }
 
         const Vector2 screen_size = { GetScreenWidth(), GetScreenHeight() };
@@ -76,7 +76,7 @@ int main(void) {
         EndDrawing();
     }
 
-    UnloadWorld(world);
+    UnloadLevels();
     CloseWindow();
     return 0;
 }

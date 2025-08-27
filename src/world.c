@@ -16,56 +16,81 @@ static Shader load_shader(char *filename) {
     return shader;
 }
 
-World LoadWorld(const char *filepath) {
-    Texture2D original = LoadTexture(filepath);
-    RenderTexture2D texture = LoadRenderTexture(original.width, original.height);
-    SetTextureWrap(texture.texture, TEXTURE_WRAP_CLAMP);
+static Shader postprocess_shader;
+static bool world_textures_created = false;
 
-    return (World) {
-        .original = original,
-        .texture = texture,
-        .postprocess_shader = load_shader("assets/world_postprocess.glsl"),
+Level levels[1];
+World world;
+
+void LoadLevels() {
+    postprocess_shader = load_shader("assets/world_postprocess.glsl");
+    levels[0] = (Level) {
+        .texture = LoadTexture("assets/level0.png"),
     };
 }
 
-void UnloadWorld(World world) {
+void UnloadLevels() {
+    UnloadShader(postprocess_shader);
+    for (size_t i = 0; i < LEVEL_COUNT; i++) {
+        UnloadTexture(levels[i].texture);
+    }
+
     UnloadImage(world.image);
     UnloadRenderTexture(world.texture);
 }
 
-void WorldReset(World *world) {
-    BeginWorldModification(world);
-    DrawTexture(world->original, 0, 0, WHITE);
-    EndWorldModification(world);
+void LoadLevel(Level *level) {
+    world.level = level;
+
+    if (world_textures_created) UnloadRenderTexture(world.texture);
+    world.texture = LoadRenderTexture(level->texture.width, level->texture.height);
+    SetTextureWrap(world.texture.texture, TEXTURE_WRAP_CLAMP);
+
+    BeginWorldModification();
+    DrawTexture(level->texture, 0, 0, WHITE);
+    EndWorldModification();
+
+    world_textures_created = true;
 }
 
-void WorldDraw(World *world) {
-    DrawTextureRec(world->texture.texture, (Rectangle) { 0, 0, world->texture.texture.width, -world->texture.texture.height }, Vector2Zero(), WHITE);
+// Drawing
+void WorldDraw() {
+    DrawTextureRec(
+        world.texture.texture,
+        (Rectangle) { 0, 0, world.texture.texture.width, -world.texture.texture.height },
+        Vector2Zero(),
+        WHITE
+    );
 }
 
-void WorldDrawPost(World *world) {
-    Vector2 size = { world->texture.texture.width, world->texture.texture.height };
+void WorldDrawPost() {
+    Vector2 size = { world.texture.texture.width, world.texture.texture.height };
     SetShaderValue(
-        world->postprocess_shader,
-        GetShaderLocation(world->postprocess_shader, "worldSize"),
+        postprocess_shader,
+        GetShaderLocation(postprocess_shader, "worldSize"),
         &size,
         SHADER_UNIFORM_VEC2
     );
-    BeginShaderMode(world->postprocess_shader);
-    DrawTextureRec(world->texture.texture, (Rectangle) { 0, 0, world->texture.texture.width, -world->texture.texture.height }, Vector2Zero(), WHITE);
+    BeginShaderMode(postprocess_shader);
+    DrawTextureRec(
+        world.texture.texture,
+        (Rectangle) { 0, 0, world.texture.texture.width, -world.texture.texture.height },
+        Vector2Zero(),
+        WHITE
+    );
     EndShaderMode();
 }
 
 // World modification
-void BeginWorldModification(World *world) {
-    BeginTextureMode(world->texture);
+void BeginWorldModification() {
+    BeginTextureMode(world.texture);
 }
 
-void EndWorldModification(World *world) {
+void EndWorldModification() {
     EndTextureMode();
 
-    UnloadImage(world->image);
-    world->image = LoadImageFromTexture(world->texture.texture);
+    if (world_textures_created) UnloadImage(world.image);
+    world.image = LoadImageFromTexture(world.texture.texture);
 }
 
 // World sampling
@@ -76,20 +101,20 @@ bool ColorSolid(Color color) {
     return max > 220;
 }
 
-Color WorldSample(World *world, Vector2 position) {
+Color WorldSample(Vector2 position) {
     int x = position.x, y = position.y;
-    if (x < 0 || y < 0 || x >= world->image.width || y >= world->image.height) {
+    if (x < 0 || y < 0 || x >= world.image.width || y >= world.image.height) {
         return WHITE;
     }
-    return GetImageColor(world->image, position.x, world->texture.texture.height - position.y - 1);
+    return GetImageColor(world.image, position.x, world.texture.texture.height - position.y - 1);
 }
 
-double WorldRaycast(World *world, Vector2 pos, Vector2 step, double max_distance) {
+double WorldRaycast(Vector2 pos, Vector2 step, double max_distance) {
     const double mag = Vector2Length(step);
     for (int it = 0; it * mag < max_distance; it++) {
 
         Vector2 p = Vector2Add(pos, Vector2Scale(step, it));
-        if (ColorSolid(WorldSample(world, p))) return it * mag;
+        if (ColorSolid(WorldSample(p))) return it * mag;
     }
     return max_distance;
 }
