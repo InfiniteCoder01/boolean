@@ -72,7 +72,9 @@ void PlayerUpdate(Player *player, World *world) {
     const float target_velocity = (right - left) * (player->grounded_time ? 4.0 : 5.0);
     player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
 
+    bool jumped = false;
     if (jump && (player->grounded_time || player->air_jumps > 0)) {
+        jumped = true;
         player->velocity.y = -20;
         if (!player->grounded_time) player->air_jumps--;
         player->squash = -20.0;
@@ -81,27 +83,37 @@ void PlayerUpdate(Player *player, World *world) {
     player->velocity.y += 1.0;
     {
         // Wall slide
-        const bool bottom = WorldRaycast(
+        const bool bl = WorldRaycast(
                 world,
                 Vector2Add(player->position, (Vector2) { -PLAYER_SIZE.x / 2.0, 0 }),
                 (Vector2) { -1.0, 0.0 }, 4.0
-            ) < 3.0 || WorldRaycast(
+            ) < 3.0;
+        const bool br = WorldRaycast(
                 world,
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, 0 }),
                 (Vector2) { 1.0, 0.0 }, 4.0
             ) < 3.0;
-        const bool center = WorldRaycast(
+        const bool cl = WorldRaycast(
                 world,
                 Vector2Add(player->position, (Vector2) { -PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
                 (Vector2) { -1.0, 0.0 }, 4.0
-            ) < 3.0 || WorldRaycast(
+            ) < 3.0;
+        const bool cr = WorldRaycast(
                 world,
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
                 (Vector2) { 1.0, 0.0 }, 4.0
             ) < 3.0;
-        if ((center || bottom) && player->velocity.y > 2.0) {
-            player->velocity.y = 2.0;
-            if (center) player->squash = -5.0;
+        if (bl || br || cl || cr) {
+            if (player->velocity.y > 2.0) {
+                player->velocity.y = 2.0;
+                if (cl || cr) player->squash = -5.0;
+            }
+            if (jump && !jumped) {
+                player->velocity.y = -15;
+                if (bl || cl) player->velocity.x = 30;
+                else player->velocity.x = -30;
+                player->squash = 10.0;
+            }
         }
     }
     if (player->grounded_time > 0) player->grounded_time--;
