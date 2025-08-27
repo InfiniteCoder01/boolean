@@ -35,6 +35,8 @@ static void draw_inventory(Vector2 mouse) {
     const int size = 60, padding = 10;
     int target_y = padding;
     in_ui = false;
+
+    size_t actual_idx = 0;
     for (size_t i = 0; i < INVENTORY_SIZE; i++) {
         if (inventory[i].present) {
             // Check if it was just added
@@ -75,11 +77,13 @@ static void draw_inventory(Vector2 mouse) {
             target_y += size + padding;
 
             if (hover) in_ui = true;
-            if (hover && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            if ((hover && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ONE + actual_idx)) {
                 selection = i;
             }
+            actual_idx++;
         }
     }
+    if (IsKeyPressed(KEY_ZERO)) selection = -1;
 }
 
 void draw_ui(World *world, Camera2D camera) {
