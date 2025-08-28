@@ -20,20 +20,19 @@ void main() {
     float dy = (1.0 / worldSize.y);
 
     float sum = 0.0;
-    vec4 darkest = vec4(1, 0, 1, 1);
     for (int y = -R; y <= R; y++) {
         for (int x = -R; x <= R; x++) {
             vec4 sample = texture(texture0, fragTexCoord + vec2(x, y) * vec2(dx, dy));
             float value = hsvValue(sample.rgb);
+            if (value < 0.5) value = 0.85;
             sum += value;
-            if (value <= hsvValue(darkest.rgb)) darkest = sample;
         }
     }
     sum /= float((R * 2 + 1) * (R * 2 + 1));
-    darkest.rgb /= hsvValue(darkest.rgb);
 
     vec4 sample = texture(texture0, fragTexCoord);
-    if (hsvValue(sample.rgb) < 0.925) {
+    float value = hsvValue(sample.rgb);
+    if (value < 0.925) {
         sample.a = 0.0;
     }
     gl_FragColor = mix(sample, vec4(0, 0, 0, 1), (1.0 - abs(sum - 0.925) * 14.0) * 1.5);

@@ -1,8 +1,18 @@
 #pragma once
 #include <raylib.h>
+#include <stddef.h>
+
+#define LEVEL_MAX_SHAPES 10
 
 typedef struct {
     Texture2D texture;
+    Vector2 starting_position;
+    struct {
+        Vector2 position;
+        int sides, radius;
+        Color color;
+    } shapes[LEVEL_MAX_SHAPES];
+    size_t nshapes;
 } Level;
 
 #define LEVEL_COUNT 1
@@ -12,6 +22,10 @@ typedef struct {
     Level *level;
     RenderTexture2D texture;
     Image image;
+    struct {
+        bool present;
+        double scale;
+    } shapes[LEVEL_MAX_SHAPES];
 } World;
 
 extern World world;

@@ -26,6 +26,22 @@ void LoadLevels() {
     postprocess_shader = load_shader("assets/world_postprocess.glsl");
     levels[0] = (Level) {
         .texture = LoadTexture("assets/level0.png"),
+        .starting_position = (Vector2) { 200.0, 400.0 },
+        .shapes = {
+            {
+                .position = (Vector2) { 200, 200 },
+                .sides = 4,
+                .radius = 60,
+                .color = (Color) { 0, 255, 0, 255 },
+            },
+            {
+                .position = (Vector2) { 800, 300 },
+                .sides = 128,
+                .radius = 60,
+                .color = (Color) { 255, 0, 0, 255 },
+            }
+        },
+        .nshapes = 2,
     };
 }
 
@@ -50,6 +66,11 @@ void LoadLevel(Level *level) {
     DrawTexture(level->texture, 0, 0, WHITE);
     EndWorldModification();
 
+    for (size_t i = 0; i < level->nshapes; i++) {
+        world.shapes[i].present = true;
+        world.shapes[i].scale = 1.0;
+    }
+
     world_textures_created = true;
 }
 
@@ -61,6 +82,26 @@ void WorldDraw() {
         Vector2Zero(),
         WHITE
     );
+    for (size_t i = 0; i < world.level->nshapes; i++) {
+        world.shapes[i].scale += (world.shapes[i].present - world.shapes[i].scale) * 0.1;
+        Vector2 position = world.level->shapes[i].position;
+        position.y += sin(GetTime() * 2.0 + position.x) * 10.0;
+        DrawPoly(
+            position,
+            world.level->shapes[i].sides,
+            world.level->shapes[i].radius * 0.5 * world.shapes[i].scale,
+            0.0,
+            world.level->shapes[i].color
+        );
+        DrawPolyLinesEx(
+            position,
+            world.level->shapes[i].sides,
+            world.level->shapes[i].radius * 0.5 * world.shapes[i].scale,
+            0.0,
+            5.0,
+            BLACK
+        );
+    }
 }
 
 void WorldDrawPost() {

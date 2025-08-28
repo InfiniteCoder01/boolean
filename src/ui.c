@@ -13,6 +13,7 @@ int selection = -1;
 
 void clear_inventory() {
     for (size_t i = 0; i < INVENTORY_SIZE; i++) inventory[i].present = 0;
+    selection = -1;
 }
 
 void give_shape(int sides, int radius, Color color) {

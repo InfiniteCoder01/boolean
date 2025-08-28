@@ -3,6 +3,7 @@
 #include <raymath.h>
 #include <stddef.h>
 #include "world.h"
+#include "ui.h"
 
 const Vector2 PLAYER_SIZE = { 40.0, 60.0 };
 
@@ -15,20 +16,23 @@ Player CreatePlayer(Vector2 position) {
         .grounded_time = 0,
         .air_jumps = 0,
         .trail_ptr = 0,
+        .alive = true,
     };
     for (size_t i = 0; i < TRAIL; i++) player.trail[i] = position;
     return player;
 }
 
 static bool collides(Player *player) {
-    const Vector2 tl = Vector2Add(player->position, Vector2Multiply(PLAYER_SIZE, (Vector2) { -0.5, -1.0 }));
-    for (int x = 0; x < PLAYER_SIZE.x; x++) {
+    Vector2 size = PLAYER_SIZE;
+    size.y *= 0.8;
+    const Vector2 tl = Vector2Add(player->position, Vector2Multiply(size, (Vector2) { -0.5, -1.0 }));
+    for (int x = 0; x < size.x; x++) {
         if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { x, 0.0 })))) return true;
-        if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { x, PLAYER_SIZE.y })))) return true;
+        if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { x, size.y })))) return true;
     }
-    for (int y = 1; y < PLAYER_SIZE.y - 1; y++) {
+    for (int y = 1; y < size.y - 1; y++) {
         if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { 0.0, y })))) return true;
-        if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { PLAYER_SIZE.x, y })))) return true;
+        if (ColorSolid(WorldSample(Vector2Add(tl, (Vector2) { size.x, y })))) return true;
     }
     return false;
 }
@@ -58,7 +62,7 @@ static bool move_in_steps(Player *player, Vector2 v) {
     return false;
 }
 
-void PlayerUpdate(Player *player, World *world) {
+void PlayerUpdate(Player *player) {
     bool left = IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) || IsKeyDown(KEY_H);
     bool right = IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D) || IsKeyDown(KEY_L);
     bool jump = IsKeyDown(KEY_SPACE), released = false;
@@ -108,7 +112,7 @@ void PlayerUpdate(Player *player, World *world) {
                 player->velocity.y = -15;
                 if (bl || cl) player->velocity.x = 30;
                 else player->velocity.x = -30;
-                player->squash = 10.0;
+                player->squash = 40.0;
             }
         }
     }
@@ -125,6 +129,26 @@ void PlayerUpdate(Player *player, World *world) {
             player->air_jumps = 1;
         }
         player->velocity.y = 0;
+    }
+
+    { // Check what's under the player
+        const Color sample = WorldSample(player->position);
+        if (sample.r < 128 && sample.g < 128 && sample.b < 128) {
+            player->alive = false;
+        }
+    }
+
+    for (size_t i = 0; i < world.level->nshapes; i++) {
+        if (!world.shapes[i].present) continue;
+        const int r = world.level->shapes[i].radius;
+        if (Vector2DistanceSqr(world.level->shapes[i].position, player->position) < r * r) {
+            world.shapes[i].present = false;
+            give_shape(
+                world.level->shapes[i].sides,
+                world.level->shapes[i].radius,
+                world.level->shapes[i].color
+            );
+        }
     }
 
     player->size.x += (PLAYER_SIZE.x + player->squash - player->size.x) * 0.5;

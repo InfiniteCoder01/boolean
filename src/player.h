@@ -13,8 +13,9 @@ typedef struct {
     int air_jumps;
     Vector2 trail[30];
     size_t trail_ptr;
+    bool alive;
 } Player;
 
 Player CreatePlayer(Vector2 position);
-void PlayerUpdate(Player *player, World *world);
+void PlayerUpdate(Player *player);
 void PlayerDraw(Player *player);
