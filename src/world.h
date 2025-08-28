@@ -15,7 +15,7 @@ typedef struct {
     size_t nshapes;
 } Level;
 
-#define LEVEL_COUNT 1
+#define LEVEL_COUNT 2
 extern Level levels[LEVEL_COUNT];
 
 typedef struct {
@@ -40,6 +40,8 @@ void WorldDrawPost();
 void BeginWorldModification();
 void EndWorldModification();
 
+unsigned char ColorMin(Color color);
+unsigned char ColorMax(Color color);
 bool ColorSolid(Color color);
 Color WorldSample(Vector2 position);
 double WorldRaycast(Vector2 pos, Vector2 step, double max_distance);

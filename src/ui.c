@@ -87,7 +87,7 @@ static void draw_inventory(Vector2 mouse) {
     if (IsKeyPressed(KEY_ZERO)) selection = -1;
 }
 
-void draw_ui(World *world, Camera2D camera) {
+void draw_ui(Camera2D camera) {
     Vector2 mouse = GetScreenToWorld2D(GetMousePosition(), camera);
     if (selection >= 0) {
         inventory[selection].rotation += GetMouseWheelMove() * -5;
@@ -106,7 +106,7 @@ void draw_ui(World *world, Camera2D camera) {
 
     bool add = IsMouseButtonPressed(MOUSE_BUTTON_LEFT), subtract = IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
     if (selection >= 0 && (add || subtract) && !in_ui) {
-        BeginWorldModification(world);
+        BeginWorldModification();
         if (subtract) {
             inventory[selection].color.r *= 0.85;
             inventory[selection].color.g *= 0.85;
@@ -119,7 +119,7 @@ void draw_ui(World *world, Camera2D camera) {
             inventory[selection].rotation,
             inventory[selection].color
         );
-        EndWorldModification(world);
+        EndWorldModification();
         inventory[selection].present = false;
         selection = -1;
     }

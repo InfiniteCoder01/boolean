@@ -19,7 +19,7 @@ static Shader load_shader(char *filename) {
 static Shader postprocess_shader;
 static bool world_textures_created = false;
 
-Level levels[1];
+Level levels[LEVEL_COUNT];
 World world;
 
 void LoadLevels() {
@@ -29,19 +29,24 @@ void LoadLevels() {
         .starting_position = (Vector2) { 200.0, 400.0 },
         .shapes = {
             {
-                .position = (Vector2) { 200, 200 },
+                .position = (Vector2) { 1160, 150 },
                 .sides = 4,
                 .radius = 60,
                 .color = (Color) { 0, 255, 0, 255 },
             },
             {
-                .position = (Vector2) { 800, 300 },
+                .position = (Vector2) { 1760, 300 },
                 .sides = 128,
                 .radius = 60,
                 .color = (Color) { 255, 0, 0, 255 },
-            }
+            },
         },
         .nshapes = 2,
+    };
+    levels[1] = (Level) {
+        .texture = LoadTexture("assets/level1.png"),
+        .starting_position = (Vector2) { 200.0, 400.0 },
+        .nshapes = 0,
     };
 }
 
@@ -135,11 +140,22 @@ void EndWorldModification() {
 }
 
 // World sampling
-bool ColorSolid(Color color) {
+unsigned char ColorMin(Color color) {
+    unsigned char min = color.r;
+    if (color.g < min) min = color.g;
+    if (color.b < min) min = color.b;
+    return min;
+}
+
+unsigned char ColorMax(Color color) {
     unsigned char max = color.r;
     if (color.g > max) max = color.g;
     if (color.b > max) max = color.b;
-    return max > 220;
+    return max;
+}
+
+bool ColorSolid(Color color) {
+    return ColorMin(color) < 250 && ColorMax(color) > 220;
 }
 
 Color WorldSample(Vector2 position) {

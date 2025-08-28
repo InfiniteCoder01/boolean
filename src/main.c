@@ -68,16 +68,21 @@ int main(void) {
             }
         }
 
-        if (IsKeyPressed(KEY_R) || !player.alive) {
-            if (next_level == LEVEL_COUNT) {
-                next_level = level;
-                TraceLog(LOG_ERROR, "%zu, %zu", next_level, level);
+        if (next_level == LEVEL_COUNT) {
+            const bool restart = IsKeyPressed(KEY_R) || (
+                ColorMax(player.sample) < 128 &&
+                ColorMax(player.sample) > 16
+            );
+            const bool advance = ColorMin(player.sample) > 250;
+            if (restart || advance) {
+                next_level = restart ? level : level + 1;
                 transition = 0.0;
             }
         }
         if (next_level < LEVEL_COUNT) {
             if (transition >= 1.0) {
-                load(next_level);
+                level = next_level;
+                load(level);
                 next_level = LEVEL_COUNT;
             }
         }
@@ -101,13 +106,17 @@ int main(void) {
         BeginMode2D(camera);
         draw();
         EndMode2D();
-        draw_ui(&world, camera);
+        draw_ui(camera);
         draw_transition(transition);
-        // DrawFPS(0, 0);
+        DrawFPS(0, 0);
         EndDrawing();
     }
 
     UnloadLevels();
     CloseWindow();
     return 0;
+}
+
+void on_resize(int width, int height) {
+    SetWindowSize(width, height);
 }

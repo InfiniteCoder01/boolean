@@ -13,7 +13,7 @@ typedef struct {
     int air_jumps;
     Vector2 trail[30];
     size_t trail_ptr;
-    bool alive;
+    Color sample;
 } Player;
 
 Player CreatePlayer(Vector2 position);

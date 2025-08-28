@@ -16,7 +16,7 @@ Player CreatePlayer(Vector2 position) {
         .grounded_time = 0,
         .air_jumps = 0,
         .trail_ptr = 0,
-        .alive = true,
+        .sample = (Color) { 216, 216, 216, 255 },
     };
     for (size_t i = 0; i < TRAIL; i++) player.trail[i] = position;
     return player;
@@ -74,7 +74,8 @@ void PlayerUpdate(Player *player) {
     }
 
     const float target_velocity = (right - left) * (player->grounded_time ? 4.0 : 5.0);
-    player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
+    if (ColorMax(player->sample) < 16) player->velocity.x = player->velocity.x < 0 ? -20.0 : 20.0;
+    else player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
 
     bool jumped = false;
     if (jump && (player->grounded_time || player->air_jumps > 0)) {
@@ -132,9 +133,9 @@ void PlayerUpdate(Player *player) {
     }
 
     { // Check what's under the player
-        const Color sample = WorldSample(player->position);
-        if (sample.r < 128 && sample.g < 128 && sample.b < 128) {
-            player->alive = false;
+        player->sample = WorldSample(player->position);
+        if (ColorMax(player->sample) < 16) {
+            player->velocity.y *= 0.1;
         }
     }
 
