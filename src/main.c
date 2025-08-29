@@ -56,7 +56,14 @@ int main(void) {
             if (GetKeyPressed()) key_pressed = true;
             if (key_pressed) transition += 0.1;
             BeginDrawing();
-            DrawTextureRec(background, (Rectangle) { 0.0, 0.0, GetScreenWidth(), GetScreenHeight() }, Vector2Zero(), WHITE);
+            DrawTexturePro(
+                background,
+                (Rectangle) { 0.0, 0.0, background.width, background.height },
+                (Rectangle) { 0.0, 0.0, GetScreenWidth(), GetScreenHeight() },
+                Vector2Zero(),
+                0.0,
+                WHITE
+            );
             draw_transition(transition);
             EndDrawing();
         }
