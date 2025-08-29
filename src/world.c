@@ -29,13 +29,13 @@ void LoadLevels() {
         .starting_position = (Vector2) { 200.0, 400.0 },
         .shapes = {
             {
-                .position = (Vector2) { 1160, 150 },
+                .position = (Vector2) { 1160, 130 },
                 .sides = 4,
                 .radius = 60,
                 .color = (Color) { 0, 255, 0, 255 },
             },
             {
-                .position = (Vector2) { 1760, 300 },
+                .position = (Vector2) { 1800, 300 },
                 .sides = 128,
                 .radius = 60,
                 .color = (Color) { 255, 0, 0, 255 },
@@ -154,8 +154,14 @@ unsigned char ColorMax(Color color) {
     return max;
 }
 
+double ColorSat(Color color) {
+    const unsigned char max = ColorMax(color);
+    const unsigned char min = ColorMin(color);
+    return (double)(max - min) / max;
+}
+
 bool ColorSolid(Color color) {
-    return ColorMin(color) < 250 && ColorMax(color) > 220;
+    return ColorSat(color) > 0.75 && ColorMax(color) > 220;
 }
 
 Color WorldSample(Vector2 position) {

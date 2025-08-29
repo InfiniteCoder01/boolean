@@ -14,6 +14,10 @@ float hsvValue(vec3 color) {
     return max(max(color.r, color.g), color.b);
 }
 
+float hsvSaturation(vec3 color) {
+    return (hsvValue(color) - min(min(color.r, color.g), color.b)) / hsvValue(color);
+}
+
 vec4 outline(vec4 sample, vec4 color, float low, float high, float sum) {
     if (sum < low || sum > high) return sample;
     float mid = (low + high) / 2.0;
@@ -33,7 +37,7 @@ void main() {
         for (int x = -R; x <= R; x++) {
             vec4 sample = texture(texture0, fragTexCoord + vec2(x, y) * vec2(dx, dy));
             float value = hsvValue(sample.rgb);
-            if (value < 0.5 && value > 0.06) value = 0.85;
+            if (hsvSaturation(sample.rgb) < 0.75 && value > 0.06) value = 0.85;
             vmin = min(vmin, value);
             vmax = max(vmax, min(min(sample.r, sample.g), sample.b));
             sum += value;
@@ -43,7 +47,7 @@ void main() {
 
     vec4 sample = texture(texture0, fragTexCoord);
     float value = hsvValue(sample.rgb);
-    if (value < 0.925) {
+    if (hsvSaturation(sample.rgb) < 0.75) {
         sample.a = 0.0;
     }
     if (vmax < 0.9) sample = outline(sample, vec4(0, 0, 0, 1), 0.85, 1.0, sum);

@@ -77,15 +77,9 @@ void PlayerUpdate(Player *player) {
     if (ColorMax(player->sample) < 16) player->velocity.x = player->velocity.x < 0 ? -20.0 : 20.0;
     else player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
 
-    bool jumped = false;
-    if (jump && (player->grounded_time || player->air_jumps > 0)) {
-        jumped = true;
-        player->velocity.y = -20;
-        if (!player->grounded_time) player->air_jumps--;
-        player->squash = -20.0;
-    } else if (released && player->velocity.y < 0) player->velocity.y *= 0.5;
-
     player->velocity.y += 1.0;
+
+    bool jumped = false;
     {
         // Wall slide
         const bool bl = WorldRaycast(
@@ -109,14 +103,22 @@ void PlayerUpdate(Player *player) {
                 player->velocity.y = 2.0;
                 if (cl || cr) player->squash = -5.0;
             }
-            if (jump && !jumped) {
+            if (jump && !player->grounded_time) {
                 player->velocity.y = -15;
                 if (bl || cl) player->velocity.x = 30;
                 else player->velocity.x = -30;
                 player->squash = 40.0;
+                jumped = true;
             }
         }
     }
+
+    if (jump && !jumped && (player->grounded_time || player->air_jumps > 0)) {
+        player->velocity.y = -20;
+        if (!player->grounded_time) player->air_jumps--;
+        player->squash = -20.0;
+    } else if (released && player->velocity.y < 0) player->velocity.y *= 0.5;
+
     if (player->grounded_time > 0) player->grounded_time--;
 
     if (move_in_steps(player, Vector2Multiply(player->velocity, (Vector2) { 1, 0 }))) player->velocity.x = 0;
@@ -136,6 +138,7 @@ void PlayerUpdate(Player *player) {
         player->sample = WorldSample(player->position);
         if (ColorMax(player->sample) < 16) {
             player->velocity.y *= 0.1;
+            player->squash = 30.0;
         }
     }
 

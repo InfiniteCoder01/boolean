@@ -42,6 +42,7 @@ void EndWorldModification();
 
 unsigned char ColorMin(Color color);
 unsigned char ColorMax(Color color);
+double ColorSat(Color color);
 bool ColorSolid(Color color);
 Color WorldSample(Vector2 position);
 double WorldRaycast(Vector2 pos, Vector2 step, double max_distance);
