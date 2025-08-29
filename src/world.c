@@ -29,13 +29,13 @@ void LoadLevels() {
         .starting_position = (Vector2) { 200.0, 400.0 },
         .shapes = {
             {
-                .position = (Vector2) { 1160, 130 },
+                .position = (Vector2) { 450, 350 },
                 .sides = 4,
                 .radius = 60,
                 .color = (Color) { 0, 255, 0, 255 },
             },
             {
-                .position = (Vector2) { 1800, 300 },
+                .position = (Vector2) { 1100, 300 },
                 .sides = 128,
                 .radius = 60,
                 .color = (Color) { 255, 0, 0, 255 },

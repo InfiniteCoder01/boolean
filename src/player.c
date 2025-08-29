@@ -145,7 +145,8 @@ void PlayerUpdate(Player *player) {
     for (size_t i = 0; i < world.level->nshapes; i++) {
         if (!world.shapes[i].present) continue;
         const int r = world.level->shapes[i].radius;
-        if (Vector2DistanceSqr(world.level->shapes[i].position, player->position) < r * r) {
+        const Vector2 player_center = Vector2Add(player->position, (Vector2) { 0.0, -player->size.y / 2.0 });
+        if (Vector2DistanceSqr(world.level->shapes[i].position, player_center) < r * r) {
             world.shapes[i].present = false;
             give_shape(
                 world.level->shapes[i].sides,

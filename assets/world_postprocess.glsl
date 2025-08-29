@@ -47,7 +47,7 @@ void main() {
 
     vec4 sample = texture(texture0, fragTexCoord);
     float value = hsvValue(sample.rgb);
-    if (hsvSaturation(sample.rgb) < 0.75) {
+    if (value < 0.925 || hsvSaturation(sample.rgb) < 0.75) {
         sample.a = 0.0;
     }
     if (vmax < 0.9) sample = outline(sample, vec4(0, 0, 0, 1), 0.85, 1.0, sum);
