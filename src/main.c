@@ -52,7 +52,7 @@ int main(void) {
     {
         const Texture2D background = LoadTexture("assets/background.png");
         bool key_pressed = false;
-        while (transition < 1.0) {
+        while (!WindowShouldClose() && transition < 1.0) {
             if (GetKeyPressed()) key_pressed = true;
             if (key_pressed) transition += 0.1;
             BeginDrawing();
