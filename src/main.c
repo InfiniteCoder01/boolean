@@ -47,6 +47,23 @@ int main(void) {
     // SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
+    // Main menu
+    float transition = 0.0;
+    {
+        const Texture2D background = LoadTexture("assets/background.png");
+        bool key_pressed = false;
+        while (transition < 1.0) {
+            if (GetKeyPressed()) key_pressed = true;
+            if (key_pressed) transition += 0.1;
+            BeginDrawing();
+            DrawTextureRec(background, (Rectangle) { 0.0, 0.0, GetScreenWidth(), GetScreenHeight() }, Vector2Zero(), WHITE);
+            draw_transition(transition);
+            EndDrawing();
+        }
+        UnloadTexture(background);
+    }
+
+    // Setup
     LoadLevels();
     camera = (Camera2D) { 0 };
     camera.target = Vector2Scale(viewport_size, 0.5);
@@ -54,8 +71,8 @@ int main(void) {
     size_t level = 0, next_level = LEVEL_COUNT;
     load(level);
 
+    // Game loop
     double next_tick = GetTime();
-    float transition = 0.0;
     while (!WindowShouldClose()) {
         double time = GetTime();
         while (next_tick <= time) {
@@ -73,7 +90,7 @@ int main(void) {
                 ColorMax(player.sample) < 128 &&
                 ColorMax(player.sample) > 16
             );
-            const bool advance = ColorMin(player.sample) > 250;
+            const bool advance = ColorMin(WorldSample(Vector2Add(player.position, (Vector2) { 0.0, -player.size.y / 2.0 }))) > 250;
             if (restart || advance) {
                 next_level = restart ? level : level + 1;
                 transition = 0.0;
