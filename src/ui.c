@@ -2,6 +2,15 @@
 #include <raylib.h>
 #include "world.h"
 
+static Sound place_sound;
+void LoadInventoryAssets() {
+    place_sound = LoadSound("assets/sounds/place.wav");
+}
+
+void UnloadInventoryAssets() {
+    UnloadSound(place_sound);
+}
+
 #define INVENTORY_SIZE 5
 struct {
     int sides, radius, rotation;
@@ -106,6 +115,7 @@ void draw_ui(Camera2D camera) {
 
     bool add = IsMouseButtonPressed(MOUSE_BUTTON_LEFT), subtract = IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
     if (selection >= 0 && (add || subtract) && !in_ui) {
+        PlaySound(place_sound);
         BeginWorldModification();
         if (subtract) {
             inventory[selection].color.r *= 0.85;

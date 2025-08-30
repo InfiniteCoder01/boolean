@@ -16,6 +16,8 @@ typedef struct {
     Color sample;
 } Player;
 
+void LoadPlayerAssets();
+void UnloadPlayerAssets();
 Player CreatePlayer(Vector2 position);
 void PlayerUpdate(Player *player);
 void PlayerDraw(Player *player);

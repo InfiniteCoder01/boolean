@@ -7,6 +7,29 @@
 
 const Vector2 PLAYER_SIZE = { 40.0, 60.0 };
 
+static Sound jump_sound;
+static Sound walljump_sound;
+static Sound pickup_sound;
+static Sound slide_sound;
+static Sound dash_sound;
+
+void LoadPlayerAssets() {
+    jump_sound = LoadSound("assets/sounds/jump.wav");
+    walljump_sound = LoadSound("assets/sounds/walljump.wav");
+    pickup_sound = LoadSound("assets/sounds/pickup.wav");
+    slide_sound = LoadSound("assets/sounds/slide.wav");
+    SetSoundVolume(slide_sound, 0.5);
+    dash_sound = LoadSound("assets/sounds/dash.wav");
+}
+
+void UnloadPlayerAssets() {
+    UnloadSound(jump_sound);
+    UnloadSound(walljump_sound);
+    UnloadSound(pickup_sound);
+    UnloadSound(slide_sound);
+    UnloadSound(dash_sound);
+}
+
 Player CreatePlayer(Vector2 position) {
     Player player = {
         .position = position,
@@ -74,7 +97,7 @@ void PlayerUpdate(Player *player) {
     }
 
     const float target_velocity = (right - left) * (player->grounded_time ? 4.0 : 5.0);
-    if (ColorMax(player->sample) < 16) player->velocity.x = player->velocity.x < 0 ? -20.0 : 20.0;
+    if (ColorMax(player->sample) < 16) player->velocity.x = player->velocity.x < 0 ? -35.0 : 35.0;
     else player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
 
     player->velocity.y += 1.0;
@@ -98,18 +121,21 @@ void PlayerUpdate(Player *player) {
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
                 (Vector2) { 1.0, 0.0 }, 4.0
             ) < 3.0;
-        if (bl || br || cl || cr) {
-            if (player->velocity.y > 2.0) {
-                player->velocity.y = 2.0;
-                if (cl || cr) player->squash = -5.0;
-            }
+        if ((bl || br || cl || cr) && player->velocity.y > 2.0) {
+            player->velocity.y = 2.0;
+            if (cl || cr) player->squash = -5.0;
+            if (!IsSoundPlaying(slide_sound))
+                PlaySound(slide_sound);
             if (jump && !player->grounded_time) {
                 player->velocity.y = -15;
                 if (bl || cl) player->velocity.x = 30;
                 else player->velocity.x = -30;
                 player->squash = 40.0;
                 jumped = true;
+                PlaySound(walljump_sound);
             }
+        } else {
+            if (IsSoundPlaying(slide_sound)) StopSound(slide_sound);
         }
     }
 
@@ -117,6 +143,7 @@ void PlayerUpdate(Player *player) {
         player->velocity.y = -20;
         if (!player->grounded_time) player->air_jumps--;
         player->squash = -20.0;
+        PlaySound(jump_sound);
     } else if (released && player->velocity.y < 0) player->velocity.y *= 0.5;
 
     if (player->grounded_time > 0) player->grounded_time--;
@@ -139,6 +166,8 @@ void PlayerUpdate(Player *player) {
         if (ColorMax(player->sample) < 16) {
             player->velocity.y *= 0.1;
             player->squash = 30.0;
+            if (!IsSoundPlaying(dash_sound))
+                PlaySound(dash_sound);
         }
     }
 
@@ -153,6 +182,7 @@ void PlayerUpdate(Player *player) {
                 world.level->shapes[i].radius,
                 world.level->shapes[i].color
             );
+            PlaySound(pickup_sound);
         }
     }
 

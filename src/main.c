@@ -46,14 +46,19 @@ int main(void) {
     SetConfigFlags(FLAG_MSAA_4X_HINT);      // Enable Multi Sampling Anti Aliasing 4x (if available)
     // SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
+    InitAudioDevice();
 
     // Main menu
     float transition = 0.0;
+    Sound level_transition = LoadSound("assets/sounds/level_transition.wav");
     {
-        const Texture2D background = LoadTexture("assets/background.png");
+        const Texture2D background = LoadTexture("assets/main_menu.png");
         bool key_pressed = false;
         while (!WindowShouldClose() && transition < 1.0) {
-            if (GetKeyPressed()) key_pressed = true;
+            if (GetKeyPressed() && !key_pressed) {
+                key_pressed = true;
+                PlaySound(level_transition);
+            }
             if (key_pressed) transition += 0.1;
             BeginDrawing();
             DrawTexturePro(
@@ -72,6 +77,9 @@ int main(void) {
 
     // Setup
     LoadLevels();
+    LoadPlayerAssets();
+    LoadInventoryAssets();
+    Sound death_sound = LoadSound("assets/sounds/death.wav");
     camera = (Camera2D) { 0 };
     camera.target = Vector2Scale(viewport_size, 0.5);
 
@@ -101,7 +109,10 @@ int main(void) {
             if (restart || advance) {
                 next_level = restart ? level : level + 1;
                 transition = 0.0;
+                if (restart) PlaySound(death_sound);
+                else PlaySound(level_transition);
             }
+
         }
         if (next_level < LEVEL_COUNT) {
             if (transition >= 1.0) {
@@ -137,6 +148,11 @@ int main(void) {
     }
 
     UnloadLevels();
+    UnloadPlayerAssets();
+    UnloadInventoryAssets();
+    UnloadSound(death_sound);
+    UnloadSound(level_transition);
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }

@@ -25,7 +25,7 @@ World world;
 void LoadLevels() {
     postprocess_shader = load_shader("assets/world_postprocess.glsl");
     levels[0] = (Level) {
-        .texture = LoadTexture("assets/level0.png"),
+        .texture = LoadTexture("assets/levels/level0.png"),
         .starting_position = (Vector2) { 200.0, 400.0 },
         .shapes = {
             {
@@ -44,7 +44,7 @@ void LoadLevels() {
         .nshapes = 2,
     };
     levels[1] = (Level) {
-        .texture = LoadTexture("assets/level1.png"),
+        .texture = LoadTexture("assets/levels/level1.png"),
         .starting_position = (Vector2) { 200.0, 400.0 },
         .nshapes = 0,
     };
