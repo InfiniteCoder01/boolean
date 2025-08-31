@@ -126,6 +126,7 @@ int main(void) {
         if (IsKeyPressed(KEY_T) && IsKeyDown(KEY_LEFT_CONTROL)) {
             if (tickrate > 10.0) tickrate = 10.0;
             else tickrate = 60.0;
+            SetTargetFPS(tickrate);
         }
 
         const Vector2 screen_size = { GetScreenWidth(), GetScreenHeight() };
