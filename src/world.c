@@ -46,6 +46,82 @@ void LoadLevels() {
     levels[1] = (Level) {
         .texture = LoadTexture("assets/levels/level1.png"),
         .starting_position = (Vector2) { 200.0, 400.0 },
+        .shapes = {
+            {
+                .position = (Vector2) { 1150, 350 },
+                .sides = 3,
+                .radius = 70,
+                .color = (Color) { 255, 100, 0, 255 },
+            },
+        },
+        .nshapes = 1,
+    };
+    levels[2] = (Level) {
+        .texture = LoadTexture("assets/levels/level2.png"),
+        .starting_position = (Vector2) { 200.0, 400.0 },
+        .shapes = {
+            {
+                .position = (Vector2) { 880, 350 },
+                .sides = 6,
+                .radius = 60,
+                .color = (Color) { 0, 180, 255, 255 },
+            },
+        },
+        .nshapes = 1,
+    };
+    levels[3] = (Level) {
+        .texture = LoadTexture("assets/levels/level3.png"),
+        .starting_position = (Vector2) { 100.0, 400.0 },
+        .shapes = {
+            {
+                .position = (Vector2) { 200, 370 },
+                .sides = 4,
+                .radius = 60,
+                .color = (Color) { 180, 0, 255, 255 },
+            },
+            {
+                .position = (Vector2) { 280, 370 },
+                .sides = 4,
+                .radius = 60,
+                .color = (Color) { 180, 0, 255, 255 },
+            },
+            {
+                .position = (Vector2) { 400, 330 },
+                .sides = 5,
+                .radius = 60,
+                .color = (Color) { 255, 0, 180, 255 },
+            },
+            {
+                .position = (Vector2) { 600, 128 },
+                .sides = 5,
+                .radius = 60,
+                .color = (Color) { 255, 0, 180, 255 },
+            },
+        },
+        .nshapes = 4,
+    };
+    levels[4] = (Level) {
+        .texture = LoadTexture("assets/levels/level4.png"),
+        .starting_position = (Vector2) { 200.0, 400.0 },
+        .shapes = {
+            {
+                .position = (Vector2) { 724, 370 },
+                .sides = 6,
+                .radius = 60,
+                .color = (Color) { 255, 30, 200, 255 },
+            },
+            {
+                .position = (Vector2) { 1118, 683 },
+                .sides = 3,
+                .radius = 60,
+                .color = (Color) { 255, 180, 0, 255 },
+            },
+        },
+        .nshapes = 2,
+    };
+    levels[5] = (Level) {
+        .texture = LoadTexture("assets/levels/level5.png"),
+        .starting_position = (Vector2) { 200.0, 400.0 },
         .nshapes = 0,
     };
 }

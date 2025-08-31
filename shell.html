@@ -41,7 +41,6 @@
                 },
                 canvas: document.getElementById('canvas'),
                 postRun: [ function() {
-                    console.log("LOAD!");
                     let on_resize = Module.cwrap(
                         "on_resize",
                         null,
@@ -58,6 +57,7 @@
                     window.onresize = resize;
                     resize();
                 } ],
+                get HEAPF32() { return HEAPF32; } // IDK why, but one single audio function requires Module to contain HEAPF32
             };
         </script>
         {{{ SCRIPT }}}

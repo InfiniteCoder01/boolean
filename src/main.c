@@ -88,12 +88,13 @@ int main(void) {
 
     // Game loop
     double next_tick = GetTime();
+    double tickrate = 60.0;
     while (!WindowShouldClose()) {
         double time = GetTime();
         while (next_tick <= time) {
             const double delta = 1.0 / 60.0;
             tick();
-            next_tick += 1.0 / 60.0;
+            next_tick += 1.0 / tickrate;
             if (transition < 2.0) {
                 transition += 0.1;
                 if (next_level < LEVEL_COUNT && transition > 1.0) transition = 1.0;
@@ -122,6 +123,11 @@ int main(void) {
             }
         }
 
+        if (IsKeyPressed(KEY_T) && IsKeyDown(KEY_LEFT_CONTROL)) {
+            if (tickrate > 10.0) tickrate = 10.0;
+            else tickrate = 60.0;
+        }
+
         const Vector2 screen_size = { GetScreenWidth(), GetScreenHeight() };
         camera.zoom = fmax(screen_size.x / viewport_size.x, screen_size.y / viewport_size.y);
         camera.offset = Vector2Scale(screen_size, 0.5);
@@ -143,7 +149,7 @@ int main(void) {
         EndMode2D();
         draw_ui(camera);
         draw_transition(transition);
-        DrawFPS(0, 0);
+        // DrawFPS(0, 0);
         EndDrawing();
     }
 

@@ -98,31 +98,35 @@ void PlayerUpdate(Player *player) {
 
     const float target_velocity = (right - left) * (player->grounded_time ? 4.0 : 5.0);
     if (ColorMax(player->sample) < 16) player->velocity.x = player->velocity.x < 0 ? -35.0 : 35.0;
-    else player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08);
+    else {
+        const bool change_dir = (player->velocity.x < 0.0) != (target_velocity < 0.0);
+        player->velocity.x += (target_velocity - player->velocity.x) * (player->grounded_time ? 0.2 : 0.08) * (change_dir ? 2.0 : 1.0);
+    }
 
     player->velocity.y += 1.0;
 
     bool jumped = false;
     {
         // Wall slide
+        const double DST = 5.0;
         const bool bl = WorldRaycast(
                 Vector2Add(player->position, (Vector2) { -PLAYER_SIZE.x / 2.0, 0 }),
-                (Vector2) { -1.0, 0.0 }, 4.0
-            ) < 3.0;
+                (Vector2) { -1.0, 0.0 }, DST + 1
+            ) < DST;
         const bool br = WorldRaycast(
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, 0 }),
-                (Vector2) { 1.0, 0.0 }, 4.0
-            ) < 3.0;
+                (Vector2) { 1.0, 0.0 }, DST + 1
+            ) < DST;
         const bool cl = WorldRaycast(
                 Vector2Add(player->position, (Vector2) { -PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
-                (Vector2) { -1.0, 0.0 }, 4.0
-            ) < 3.0;
+                (Vector2) { -1.0, 0.0 }, DST + 1
+            ) < DST;
         const bool cr = WorldRaycast(
                 Vector2Add(player->position, (Vector2) { PLAYER_SIZE.x / 2.0, -PLAYER_SIZE.y / 2.0 }),
-                (Vector2) { 1.0, 0.0 }, 4.0
-            ) < 3.0;
-        if ((bl || br || cl || cr) && player->velocity.y > 2.0) {
-            player->velocity.y = 2.0;
+                (Vector2) { 1.0, 0.0 }, DST + 1
+            ) < DST;
+        if ((bl || br || cl || cr) && player->velocity.y > 1.0) {
+            if (player->velocity.y > 2.0) player->velocity.y = 2.0;
             if (cl || cr) player->squash = -5.0;
             if (!IsSoundPlaying(slide_sound))
                 PlaySound(slide_sound);

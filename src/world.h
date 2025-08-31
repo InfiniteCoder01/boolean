@@ -15,7 +15,7 @@ typedef struct {
     size_t nshapes;
 } Level;
 
-#define LEVEL_COUNT 2
+#define LEVEL_COUNT 6
 extern Level levels[LEVEL_COUNT];
 
 typedef struct {
